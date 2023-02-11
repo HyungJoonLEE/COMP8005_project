@@ -1,11 +1,9 @@
-//#include "common.h"
-//#include "error.h"
-//#include <assert.h>
-//
-//void option_init(char *file_directory, LinkedList *user_list) {
-//  strcpy(file_directory, DEFAULT_DIR);
-//  user_list->num_thread = DEFAULT_SINGLE_THREAD;
-//}
+#include "common.h"
+#include "error.h"
+#include "server.h"
+#include "linkedList.h"
+#include <assert.h>
+
 //
 //void parse_command(int argc, char *argv[], char *file_directory,
 //                   LinkedList *user_list) {

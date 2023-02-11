@@ -14,6 +14,7 @@ set(HEADER_LIST
         "${PROJECT_SOURCE_DIR}/include/error.h"
         "${PROJECT_SOURCE_DIR}/include/conversion.h"
         "${PROJECT_SOURCE_DIR}/include/server.h"
+        "${PROJECT_SOURCE_DIR}/include/server_helper.h"
         "${PROJECT_SOURCE_DIR}/include/client.h"
         )
 
@@ -26,6 +27,7 @@ set(COMMON_SOURCE_LIST
 
 set(SERVER_SOURCE_LIST
         "${PROJECT_SOURCE_DIR}/src/server.c"
+        "${PROJECT_SOURCE_DIR}/src/server_helper.c"
         )
 
 set(CLIENT_SOURCE_LIST
