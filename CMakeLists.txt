@@ -12,6 +12,7 @@ set(HEADER_LIST
         "${PROJECT_SOURCE_DIR}/include/common.h"
         "${PROJECT_SOURCE_DIR}/include/linkedList.h"
         "${PROJECT_SOURCE_DIR}/include/error.h"
+        "${PROJECT_SOURCE_DIR}/include/conversion.h"
         "${PROJECT_SOURCE_DIR}/include/server.h"
         "${PROJECT_SOURCE_DIR}/include/client.h"
         )
@@ -20,13 +21,14 @@ set(COMMON_SOURCE_LIST
         "${PROJECT_SOURCE_DIR}/src/common.c"
         "${PROJECT_SOURCE_DIR}/src/linkedList.c"
         "${PROJECT_SOURCE_DIR}/src/error.c"
+        "${PROJECT_SOURCE_DIR}/src/conversion.c"
         )
 
 set(SERVER_SOURCE_LIST
         "${PROJECT_SOURCE_DIR}/src/server.c"
         )
 
-set(ClIENT_SOURCE_LIST
+set(CLIENT_SOURCE_LIST
         "${PROJECT_SOURCE_DIR}/src/client.c"
         )
 
@@ -59,7 +61,3 @@ add_subdirectory(src)
 
 find_library(LIBCGREEN cgreen)
 
-# Testing only available if this is the main app
-if ((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) AND BUILD_TESTING AND LIBCGREEN)
-    add_subdirectory(tests)
-endif ()
