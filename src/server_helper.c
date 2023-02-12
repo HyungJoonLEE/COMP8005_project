@@ -107,26 +107,35 @@ void options_process_server(server* opts) {
     }
 }
 
-void add_new_client(server* opts, int client_socket,
+int add_new_client(server* opts, int client_socket,
                     struct sockaddr_in *new_client_address) {
+    int index = 0;
     char buffer[20];
 
     inet_ntop(AF_INET, &new_client_address->sin_addr, buffer, sizeof(buffer));
     printf("New client: [ %s ]\n", buffer);
-
-    opts->client_socket[opts->client_count] = client_socket;
     opts->client_count++;
+    for (int i = 0; i < opts->client_count; i++) {
+        if (opts->client_socket[i] == 0) {
+            opts->client_socket[i] = client_socket;
+            index = i;
+            break;
+        }
+    }
+
     printf("Current client count = %d\n", opts->client_count);
+    return index;
 }
 
 void remove_client(server* opts, int client_socket) {
-    close(opts->client_socket[client_socket]);
+    for (int i = 0; i < opts->client_count; i++) {
+        if (opts->client_socket[i] == client_socket) {
+            close(opts->client_socket[i]);
+            opts->client_socket[i] = 0;
+            opts->client_count--;
+        }
+    }
 
-    if (client_socket != opts->client_count - 1)
-        opts->client_socket[client_socket] =
-                opts->client_socket[opts->client_count - 1];
-
-    opts->client_count--;
     printf("Current client count = %d\n", opts->client_count);
 }
 

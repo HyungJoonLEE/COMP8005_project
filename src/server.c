@@ -13,6 +13,7 @@ int main(int argc, char *argv[]) {
     char file_list[BUF_SIZE] = {0};
     struct sockaddr_in client_address;
     int client_socket;
+    int index;
     int max_socket_num; // IMPORTANT Don't forget to set +1
     char buffer[256] = {0};
     char response[256] = {0};
@@ -29,14 +30,23 @@ int main(int argc, char *argv[]) {
     options_process_server(opts);
 
     while (1) {
+        struct timeval timeout;
+        // receive time out config
+        // Set 1 ms timeout counter
+        // TODO: Sender can change the timeout to resend the packet
+        timeout.tv_sec = 1;
+        timeout.tv_usec = 0;
+
         FD_ZERO(&read_fds);
         FD_SET(opts->server_socket, &read_fds);
+        FD_SET(fileno(stdin), &read_fds);
+
         for (int i = 0; i < opts->client_count; i++) {
             FD_SET(opts->client_socket[i], &read_fds);
         }
         max_socket_num = get_max_socket_number(opts) + 1;
         printf("wait for client\n");
-        if (select(max_socket_num, &read_fds, NULL, NULL, NULL) < 0) {
+        if (select(max_socket_num, &read_fds, NULL, NULL, &timeout) < 0) {
             printf("select() error");
             exit(1);
         }
@@ -48,20 +58,24 @@ int main(int argc, char *argv[]) {
                 exit(1);
             }
 
-            add_new_client(opts, client_socket, &client_address);
+            index = add_new_client(opts, client_socket, &client_address);
             write(client_socket, CONNECTION_SUCCESS, strlen(CONNECTION_SUCCESS));
-            printf("Successfully added client_fd to client_socket[%d]\n", opts->client_count - 1);
+            printf("Successfully added client socket(%d) to client_socket[%d]\n", client_socket, index);
         }
-//
-//        if (fgets(buffer, sizeof(buffer), stdin)) {
-//            if (strstr(buffer, COMMAND_SEND) != NULL) {
-//                for (int i = 0; i < opts->client_count; i++) {
-//                    memset(buffer, 0, sizeof(char) * 256);
-//                    sprintf(buffer, "%d/%d/%d", opts->client_socket[i], user_list->num_thread, opts->client_count);
-//                    write(opts->client_socket[i], buffer, sizeof(buffer));
-//                    printf("%s were sent to client_socket[%d]\n", buffer, opts->client_socket[i]);
-//                }
-//            }
+
+
+        if (FD_ISSET(fileno(stdin), &read_fds)) {
+            if (fgets(buffer, sizeof(buffer), stdin)) {
+                if (strstr(buffer, COMMAND_SEND) != NULL) {
+                    for (int i = 0; i < opts->client_count; i++) {
+                        memset(buffer, 0, sizeof(char) * 256);
+                        sprintf(buffer, "%d/%d/%d", opts->client_socket[i], user_list->num_thread, opts->client_count);
+                        write(opts->client_socket[i], buffer, strlen(buffer));
+                        printf("%s were sent to client_socket[%d]\n", buffer, opts->client_socket[i]);
+                    }
+                }
+            }
+        }
 //
 //            if (strstr(buffer, COMMAND_START) != NULL) {
 //                for (int i = 0; i < opts->client_count; i++) {
@@ -83,13 +97,13 @@ int main(int argc, char *argv[]) {
                 received_data = read(opts->client_socket[i], buffer, sizeof(buffer));
                 buffer[received_data] = '\0';
                 if (strlen(buffer) != 0)
-                    printf("[ client %d]: %s\n", opts->client_socket[i], buffer);
+                    printf("[ client %d ]: %s\n", opts->client_socket[i], buffer);
                 if (received_data < 0) {
                     remove_client(opts, opts->client_socket[i]);
                     break;
                 }
                 // when client type "exit"
-                if (strstr(buffer, "exit") != NULL) {
+                if (strstr(buffer, COMMAND_EXIT) != NULL) {
                     remove_client(opts, opts->client_socket[i]);
                     continue;
                 }

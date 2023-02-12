@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
         if (strlen(buffer) == 0) {
             if (FD_ISSET(0, &read_fds)) {
                 if (fgets(buffer, sizeof(buffer), stdin)) {
-                    if (strstr(buffer, "exit") != NULL) {
+                    if (strstr(buffer, COMMAND_EXIT) != NULL) {
                         write(opts->server_socket, buffer, sizeof(buffer));
                         printf("Exit from the server");
                         close(opts->server_socket);
