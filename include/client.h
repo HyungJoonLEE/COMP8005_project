@@ -6,8 +6,6 @@
 typedef struct options {
   char *server_ip;
   in_port_t server_port;
-  int fd_in;
-  int fd_out;
   int server_socket;
 }client;
 

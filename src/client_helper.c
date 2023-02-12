@@ -23,8 +23,6 @@ client *createClientOps() {
 
 void options_init_client(struct options *opts) {
     memset(opts, 0, sizeof(struct options));
-    opts->fd_in = STDIN_FILENO;
-    opts->fd_out = STDOUT_FILENO;
     opts->server_port = DEFAULT_PORT_SERVER;
 }
 
@@ -87,22 +85,20 @@ int options_process_client(struct options *opts) {
 
         result = connect(opts->server_socket, (struct sockaddr *) &server_addr,
                          sizeof(struct sockaddr_in));
-
-        if (result == -1) {
-            fatal_errno(__FILE__, __func__, __LINE__, errno, 2);
+        if (result < 0) fatal_errno(__FILE__, __func__, __LINE__, errno, 2);
+        else {
+            server_connection_test_fd = read(opts->server_socket, message, sizeof(message));
+            if (server_connection_test_fd < 0) {
+                printf("You are not connected to server\n");
+            }
+            else printf("%s \n", message);
         }
-        server_connection_test_fd =
-                read(opts->server_socket, message, sizeof(message));
-        if (server_connection_test_fd == -1) {
-            printf("You are not connected to server\n");
-        }
-        printf("%s \n", message);
     }
     return opts->server_socket;
 }
 
 void cleanup(const struct options *opts) {
     if (opts->server_ip) {
-        close(opts->fd_out);
+        close(opts->server_socket);
     }
 }

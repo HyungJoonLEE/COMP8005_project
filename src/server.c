@@ -28,6 +28,8 @@ int main(int argc, char *argv[]) {
     options_init_server(opts, user_list, file_directory);
     parse_arguments_server(argc, argv, file_directory, opts, user_list);
     options_process_server(opts);
+    printf("Server Initialized Successfully\n"
+                  "Waiting for connection ...\n\n\n");
 
     while (1) {
         struct timeval timeout;
@@ -45,8 +47,8 @@ int main(int argc, char *argv[]) {
             FD_SET(opts->client_socket[i], &read_fds);
         }
         max_socket_num = get_max_socket_number(opts) + 1;
-        printf("wait for client\n");
-        if (select(max_socket_num, &read_fds, NULL, NULL, &timeout) < 0) {
+//        printf("wait for client\n");
+        if (select(max_socket_num, &read_fds, NULL, NULL, NULL) < 0) {
             printf("select() error");
             exit(1);
         }
@@ -68,36 +70,47 @@ int main(int argc, char *argv[]) {
             if (fgets(buffer, sizeof(buffer), stdin)) {
                 if (strstr(buffer, COMMAND_SEND) != NULL) {
                     for (int i = 0; i < opts->client_count; i++) {
+                        sprintf(buffer, "send %d/%d/%d\n", opts->client_socket[i], user_list->num_thread, opts->client_count);
+                        write(opts->client_socket[i], buffer, sizeof(buffer));
+                        printf("Instruction sent to client_socket[%d]\n", opts->client_socket[i]);
                         memset(buffer, 0, sizeof(char) * 256);
-                        sprintf(buffer, "%d/%d/%d", opts->client_socket[i], user_list->num_thread, opts->client_count);
-                        write(opts->client_socket[i], buffer, strlen(buffer));
-                        printf("%s were sent to client_socket[%d]\n", buffer, opts->client_socket[i]);
+                    }
+                }
+                if (strstr(buffer, COMMAND_START) != NULL) {
+                    for (int i = 0; i < opts->client_count; i++) {
+                        write(opts->client_socket[i], buffer, sizeof(buffer));
+                    }
+                    memset(buffer, 0, sizeof(char) * 256);
+                }
+                if (strstr(buffer, COMMAND_EXIT) != NULL) {
+                    for (int i = 0; i < opts->client_count; i++) {
+                        remove_client(opts, opts->client_socket[i]);
+                    }
+                    cleanup(opts);
+                    free(opts);
+                    // TODO: ADD "FREE_HEAP_MEMEMROY()"
+                    free(user_list);
+                    return EXIT_SUCCESS;
+                }
+                else {
+                    if (strlen(buffer) != 0) {
+                        buffer[strlen(buffer)] = 0;
+                        for (int i = 0; i < opts->client_count; i++) {
+                            write(opts->client_socket[i], buffer, sizeof(buffer));
+                        }
                     }
                 }
             }
         }
-//
-//            if (strstr(buffer, COMMAND_START) != NULL) {
-//                for (int i = 0; i < opts->client_count; i++) {
-//                    write(opts->client_socket[i], buffer, sizeof(buffer));
-//                }
-//                memset(buffer, 0, sizeof(char) * 256);
-//            }
-//
-//            if (strstr(buffer, COMMAND_EXIT) != NULL) {
-//                memset(buffer, 0, sizeof(char) * 256);
-//            }
-//        }
 
 
 
         // RECEIVE DATA FROM CLIENT
         for (int i = 0; i < opts->client_count; i++) {
             if (FD_ISSET(opts->client_socket[i], &read_fds)) {
-                received_data = read(opts->client_socket[i], buffer, sizeof(buffer));
-                buffer[received_data] = '\0';
+                received_data = read(opts->client_socket[i], buffer, sizeof(buffer) - 1);
                 if (strlen(buffer) != 0)
-                    printf("[ client %d ]: %s\n", opts->client_socket[i], buffer);
+                    printf("[ client %d ]: %s", opts->client_socket[i], buffer);
                 if (received_data < 0) {
                     remove_client(opts, opts->client_socket[i]);
                     break;
@@ -111,8 +124,6 @@ int main(int argc, char *argv[]) {
             }
         }
     }
-    cleanup(&opts);
-    return EXIT_SUCCESS;
 }
 
 

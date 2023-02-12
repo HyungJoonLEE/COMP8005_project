@@ -3,9 +3,9 @@
 
 int main(int argc, char *argv[]) {
     client* opts = NULL;
-    int max_socket_num; // IMPORTANT Don't forget to set +1
+    ssize_t received_data;
     char buffer[256] = {0};
-    char response[256] = {0};
+    char s_buffer[256] = {0};
     fd_set read_fds;
     int result;
 
@@ -17,10 +17,10 @@ int main(int argc, char *argv[]) {
         printf("Connect() fail");
     }
 
-    max_socket_num = opts->server_socket;
-
     while (1) {
+        FD_ZERO(&read_fds);
         FD_SET(0, &read_fds);
+        FD_SET(fileno(stdin), &read_fds);
         FD_SET(opts->server_socket, &read_fds);
         struct timeval timeout;
         // receive time out config
@@ -28,35 +28,49 @@ int main(int argc, char *argv[]) {
         // TODO: Sender can change the timeout to resend the packet
         timeout.tv_sec = 1;
         timeout.tv_usec = 0;
-        if (strlen(buffer) == 0) {
-            if (FD_ISSET(0, &read_fds)) {
-                if (fgets(buffer, sizeof(buffer), stdin)) {
-                    if (strstr(buffer, COMMAND_EXIT) != NULL) {
-                        write(opts->server_socket, buffer, sizeof(buffer));
-                        printf("Exit from the server");
-                        close(opts->server_socket);
-                        break;
-                    }
 
-                    if (strstr(buffer, "start") != NULL) {
-                        memset(buffer, 0, sizeof(char) * 256);
-                        // TODO: password_generator_func call
-                    }
+        if (select(opts->server_socket + 1, &read_fds, NULL, NULL, NULL) < 0) {
+            printf("select() error");
+            exit(1);
+        }
+
+        if (FD_ISSET(fileno(stdin), &read_fds)) {
+            if (fgets(buffer, sizeof(buffer), stdin)) {
+                if (strstr(buffer, COMMAND_EXIT) != NULL) {
+                    write(opts->server_socket, buffer, sizeof(buffer));
+                    printf("Exit from the server");
+                    close(opts->server_socket);
+                    break;
+                }
+                if (strstr(buffer, "start") != NULL) {
+                    memset(buffer, 0, sizeof(char) * 256);
+                    // TODO: password_generator_func call
+                }
+                else {
+                    write(opts->server_socket, buffer, sizeof(buffer));
+                    memset(buffer, 0, sizeof(char) * 256);
                 }
             }
         }
-        result = select(max_socket_num + 1, &read_fds, NULL, NULL, &timeout);
 
-        if (result < 0) {
-            printf("select fail");
-            exit(1);
-        } else if (result == 0) {
-            write(opts->server_socket, buffer, sizeof(buffer));
-        } else {
-            read(opts->server_socket, response, sizeof(response));
-            printf("receiver = [ %s ]\n", response);
-            memset(buffer, 0, sizeof(char) * 256);
-            memset(response, 0, sizeof(char) * 256);
+        if (FD_ISSET(opts->server_socket, &read_fds)) {
+            received_data = read(opts->server_socket, s_buffer, sizeof(buffer));
+            if (received_data > 0) {
+                if (strstr(s_buffer, COMMAND_SEND)) {
+                    char * token = strtok(s_buffer, " ");
+                    // loop through the string to extract all other tokens
+                    token = strtok(NULL, "/");
+                    printf("socket id = %s\n", token);
+                    token = strtok(NULL, "/");
+                    printf( "number of thread = %s\n", token); //printing each token
+                    token = strtok(NULL, "/");
+                    printf( "number of user = %s\n", token);
+                }
+                else {
+                    printf("[ server ]: %s", s_buffer);
+                }
+                memset(s_buffer, 0, 256);
+            }
         }
     }
 

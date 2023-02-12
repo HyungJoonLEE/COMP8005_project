@@ -151,4 +151,4 @@ int get_max_socket_number(server* opts) {
     return max;
 }
 
-static void cleanup(const server* opts) { close(opts->server_socket); }
+void cleanup(const server* opts) { close(opts->server_socket); }
