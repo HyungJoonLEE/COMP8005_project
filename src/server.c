@@ -52,28 +52,28 @@ int main(int argc, char *argv[]) {
             write(client_socket, CONNECTION_SUCCESS, strlen(CONNECTION_SUCCESS));
             printf("Successfully added client_fd to client_socket[%d]\n", opts->client_count - 1);
         }
-
-        if (fgets(buffer, sizeof(buffer), stdin)) {
-            if (strstr(buffer, COMMAND_SEND) != NULL) {
-                for (int i = 0; i < opts->client_count; i++) {
-                    memset(buffer, 0, sizeof(char) * 256);
-                    sprintf(buffer, "%d/%d/%d", opts->client_socket[i], user_list->num_thread, opts->client_count);
-                    write(opts->client_socket[i], buffer, sizeof(buffer));
-                    printf("%s were sent to client_socket[%d]\n", buffer, opts->client_socket[i]);
-                }
-            }
-
-            if (strstr(buffer, COMMAND_START) != NULL) {
-                for (int i = 0; i < opts->client_count; i++) {
-                    write(opts->client_socket[i], buffer, sizeof(buffer));
-                }
-                memset(buffer, 0, sizeof(char) * 256);
-            }
-
-            if (strstr(buffer, COMMAND_EXIT) != NULL) {
-                memset(buffer, 0, sizeof(char) * 256);
-            }
-        }
+//
+//        if (fgets(buffer, sizeof(buffer), stdin)) {
+//            if (strstr(buffer, COMMAND_SEND) != NULL) {
+//                for (int i = 0; i < opts->client_count; i++) {
+//                    memset(buffer, 0, sizeof(char) * 256);
+//                    sprintf(buffer, "%d/%d/%d", opts->client_socket[i], user_list->num_thread, opts->client_count);
+//                    write(opts->client_socket[i], buffer, sizeof(buffer));
+//                    printf("%s were sent to client_socket[%d]\n", buffer, opts->client_socket[i]);
+//                }
+//            }
+//
+//            if (strstr(buffer, COMMAND_START) != NULL) {
+//                for (int i = 0; i < opts->client_count; i++) {
+//                    write(opts->client_socket[i], buffer, sizeof(buffer));
+//                }
+//                memset(buffer, 0, sizeof(char) * 256);
+//            }
+//
+//            if (strstr(buffer, COMMAND_EXIT) != NULL) {
+//                memset(buffer, 0, sizeof(char) * 256);
+//            }
+//        }
 
 
 
@@ -85,12 +85,12 @@ int main(int argc, char *argv[]) {
                 if (strlen(buffer) != 0)
                     printf("[ client %d]: %s\n", opts->client_socket[i], buffer);
                 if (received_data < 0) {
-                    remove_client(&opts, opts->client_socket[i]);
+                    remove_client(opts, opts->client_socket[i]);
                     break;
                 }
                 // when client type "exit"
                 if (strstr(buffer, "exit") != NULL) {
-                    remove_client(&opts, opts->client_socket[i]);
+                    remove_client(opts, opts->client_socket[i]);
                     continue;
                 }
                 memset(buffer, 0, sizeof(char) * 256);
