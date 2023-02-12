@@ -16,6 +16,7 @@ set(HEADER_LIST
         "${PROJECT_SOURCE_DIR}/include/server.h"
         "${PROJECT_SOURCE_DIR}/include/server_helper.h"
         "${PROJECT_SOURCE_DIR}/include/client.h"
+        "${PROJECT_SOURCE_DIR}/include/client_helper.h"
         )
 
 set(COMMON_SOURCE_LIST
@@ -32,6 +33,7 @@ set(SERVER_SOURCE_LIST
 
 set(CLIENT_SOURCE_LIST
         "${PROJECT_SOURCE_DIR}/src/client.c"
+        "${PROJECT_SOURCE_DIR}/src/client_helper.c"
         )
 
 ### Require out-of-source builds

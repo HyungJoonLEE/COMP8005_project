@@ -64,8 +64,10 @@ int main(int argc, char *argv[]) {
             }
 
             if (strstr(buffer, COMMAND_START) != NULL) {
+                for (int i = 0; i < opts->client_count; i++) {
+                    write(opts->client_socket[i], buffer, sizeof(buffer));
+                }
                 memset(buffer, 0, sizeof(char) * 256);
-                // TODO: password_generator_func call
             }
 
             if (strstr(buffer, COMMAND_EXIT) != NULL) {
