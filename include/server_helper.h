@@ -9,6 +9,8 @@
 #include "error.h"
 #include "conversion.h"
 
+#define DEFAULT_DIR "/etc/shadow"
+
 
 server *createServerOps();
 void options_init_server(server* opts, LinkedList* user_list, char* file_directory);

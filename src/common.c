@@ -4,37 +4,37 @@
 #include "linkedList.h"
 #include <assert.h>
 
-//
+
 //void parse_command(int argc, char *argv[], char *file_directory,
 //                   LinkedList *user_list) {
 //  int c;
 //
 //  while ((c = getopt(argc, argv, ":f:t:")) != -1) {
 //    switch (c) {
-//    case 'f': {
-//      strcpy(file_directory, optarg);
-//      break;
-//    }
-//    case 't': {
-//      if (atoi(optarg) > omp_get_max_threads()) {
-//        printf("Thread number is higher than your computer's max thread");
-//        exit(1);
-//      }
-//      user_list->num_thread = atoi(optarg);
-//      break;
-//    }
-//    case ':': {
-//      fatal_message(__FILE__, __func__, __LINE__,
-//                    "\"Options requires an operand\"", 5);
-//      break;
-//    }
-//    case '?': {
-//      fatal_message(__FILE__, __func__, __LINE__, "Unknown", 6);
-//      break;
-//    }
-//    default: {
-//      assert("Should not get here");
-//    };
+//        case 'f': {
+//          strcpy(file_directory, optarg);
+//          break;
+//        }
+//        case 't': {
+//          if (atoi(optarg) > omp_get_max_threads()) {
+//            printf("Thread number is higher than your computer's max thread");
+//            exit(1);
+//          }
+//          user_list->num_thread = atoi(optarg);
+//          break;
+//        }
+//        case ':': {
+//          fatal_message(__FILE__, __func__, __LINE__,
+//                        "\"Options requires an operand\"", 5);
+//          break;
+//        }
+//        case '?': {
+//          fatal_message(__FILE__, __func__, __LINE__, "Unknown", 6);
+//          break;
+//        }
+//        default: {
+//          assert("Should not get here");
+//        };
 //    }
 //  }
 //
@@ -201,8 +201,8 @@
 //  }
 //}
 //
-//void free_heap_memory(LinkedList *user_list) {
-//  for (int i = 0; i < getLinkedListLength(user_list); i++) {
-//    removeLLElement(user_list, i);
-//  }
-//}
+void free_heap_memory(LinkedList *user_list) {
+  for (int i = 0; i < getLinkedListLength(user_list); i++) {
+    removeLLElement(user_list, i);
+  }
+}

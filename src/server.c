@@ -72,7 +72,7 @@ int main(int argc, char *argv[]) {
                     for (int i = 0; i < opts->client_count; i++) {
                         sprintf(buffer, "send %d/%d/%d\n", opts->client_socket[i], user_list->num_thread, opts->client_count);
                         write(opts->client_socket[i], buffer, sizeof(buffer));
-                        printf("Instruction sent to client_socket[%d]\n", opts->client_socket[i]);
+                        printf("[Socket id][# thread][# client] sent to client_socket[%d] successfully\n", opts->client_socket[i]);
                         memset(buffer, 0, sizeof(char) * 256);
                     }
                 }
@@ -88,8 +88,8 @@ int main(int argc, char *argv[]) {
                     }
                     cleanup(opts);
                     free(opts);
-                    // TODO: ADD "FREE_HEAP_MEMEMROY()"
-                    free(user_list);
+                    free_heap_memory(user_list);
+                    deleteLinkedList(user_list);
                     return EXIT_SUCCESS;
                 }
                 else {

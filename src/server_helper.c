@@ -29,9 +29,7 @@ void options_init_server(server* opts, LinkedList* user_list, char* file_directo
 void parse_arguments_server(int argc, char *argv[], char* file_directory, server* opts, LinkedList* user_list) {
     int c;
 
-    while ((c = getopt(argc, argv, ":p:t:")) !=
-           -1) // NOLINT(concurrency-mt-unsafe)
-    {
+    while ((c = getopt(argc, argv, ":f:p:t:")) != -1) { // NOLINT(concurrency-mt-unsafe)
         switch (c) {
             case 'f': {
                 strcpy(file_directory, optarg);
@@ -67,7 +65,21 @@ void parse_arguments_server(int argc, char *argv[], char* file_directory, server
             };
         }
     }
+
+    if (optind < argc) {
+        int i = 0;
+        while (argv[optind + i] != NULL) {
+            ListNode user = {
+                    0,
+            };
+            strcpy(user.id, argv[optind + i]);
+            addLLElement(user_list, i, user);
+            i++;
+        }
+    }
+
 }
+
 
 void options_process_server(server* opts) {
     struct sockaddr_in server_address;

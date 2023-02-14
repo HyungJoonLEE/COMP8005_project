@@ -30,11 +30,11 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include "linkedList.h"
 
 #define BUF_SIZE 4096
 #define PASS_LEN 15
 #define PASS_ARR_LEN 95
-#define DEFAULT_DIR "/etc/shadow"
 #define DEFAULT_SINGLE_THREAD 1
 #define DEFAULT_PORT_SERVER 53000
 #define TRUE 1
@@ -55,7 +55,7 @@ static const char *passwd_arr = "abcdefghijklmnopqrstuvwxyz"
 //void save_user(char *user_info, LinkedList *user_list, int i);
 //void save_userinfo(char *user_info, LinkedList *user_list, int i);
 //void compare_password_with_salt(LinkedList *user_list);
-//void free_heap_memory(LinkedList *user_list);
+void free_heap_memory(LinkedList *user_list);
 //void password_generator(int *ptr1, int *ptr2, int temp_pwlen,
 //                        LinkedList *user_list, int user_index);
 
