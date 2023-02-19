@@ -148,7 +148,7 @@ void remove_client(server* opts, int client_socket) {
         }
     }
 
-    printf("Current client count = %d\n", opts->client_count);
+    printf("Client exited. Current client count = %d\n", opts->client_count);
 }
 
 // Finding maximum socket number
@@ -164,3 +164,9 @@ int get_max_socket_number(server* opts) {
 }
 
 void cleanup(const server* opts) { close(opts->server_socket); }
+
+
+void set_nonblocking_mode(int fd) {
+    int flag = fcntl(fd, F_GETFL, 0);
+    fcntl(fd, F_SETFL, flag | O_NONBLOCK);
+}
