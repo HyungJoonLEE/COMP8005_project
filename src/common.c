@@ -113,51 +113,51 @@ void salt_setting(LinkedList *user_list) {
         strcpy(getLLElement(user_list, i)->salt_setting, salt_setting);
     }
 }
-//
-//void password_generator(int *ptr1, int *ptr2, int temp_pwlen,
-//                        LinkedList *user_list, int user_index) {
-//  char password[temp_pwlen];
-//  int temp[temp_pwlen + 1];
-//  int i, j;
-//
-//  memset(temp, 0, temp_pwlen);
-//  memset(password, 0, temp_pwlen);
-//
-//  for (i = 0; i < temp_pwlen; i++)
-//    temp[i] = ptr1[i];
-//
-//  i = 0;
-//  while (i < temp_pwlen) {
-//    for (i = 0; i < temp_pwlen; i++) {
-//      password[i] = passwd_arr[temp[i]];
-//    }
-//    password[temp_pwlen] = 0;
-//    printf("[thread %d]: %s\n", omp_get_thread_num(), password);
-//#pragma omp critical
-//    if (strcmp(
-//            crypt(password, getLLElement(user_list, user_index)->salt_setting),
-//            getLLElement(user_list, user_index)->original) == 0) {
-//      strcpy(getLLElement(user_list, user_index)->password, password);
-//    }
-//
-//    if (strlen(getLLElement(user_list, user_index)->password) > 0) {
-//      return;
-//    }
-//
-//    getLLElement(user_list, user_index)->count++;
-//
-//    for (i = 0; i < temp_pwlen && temp[temp_pwlen - i - 1]++ == PASS_ARR_LEN;
-//         i++)
-//      temp[temp_pwlen - i - 1] = 0;
-//
-//    for (j = 0; j < temp_pwlen; j++)
-//      if (temp[j] != ptr2[j])
-//        break;
-//    if (j == temp_pwlen)
-//      return;
-//  }
-//}
-//
+
+
+void password_generator(int *ptr1, int *ptr2, int temp_pwlen, LinkedList *user_list, int user_index) {
+    char password[temp_pwlen];
+    int temp[temp_pwlen + 1];
+    int i, j;
+
+    memset(temp, 0, temp_pwlen);
+    memset(password, 0, temp_pwlen);
+
+    for (i = 0; i < temp_pwlen; i++)
+        temp[i] = ptr1[i];
+
+    i = 0;
+    while (i < temp_pwlen) {
+        for (i = 0; i < temp_pwlen; i++) {
+            password[i] = passwd_arr[temp[i]];
+        }
+        password[temp_pwlen] = 0;
+        printf("[thread %d]: %s\n", omp_get_thread_num(), password);
+#pragma omp critical
+        if (strcmp(
+            crypt(password, getLLElement(user_list, user_index)->salt_setting),
+            getLLElement(user_list, user_index)->original) == 0) {
+                strcpy(getLLElement(user_list, user_index)->password, password);
+        }
+
+        if (strlen(getLLElement(user_list, user_index)->password) > 0) {
+            return;
+        }
+
+        getLLElement(user_list, user_index)->count++;
+
+        for (i = 0; i < temp_pwlen && temp[temp_pwlen - i - 1]++ == PASS_ARR_LEN; i++)
+            temp[temp_pwlen - i - 1] = 0;
+
+        for (j = 0; j < temp_pwlen; j++)
+            if (temp[j] != ptr2[j])
+                break;
+        if (j == temp_pwlen)
+        return;
+    }
+}
+
+
 void free_heap_memory(LinkedList *user_list) {
   for (int i = 0; i < getLinkedListLength(user_list); i++) {
     removeLLElement(user_list, i);

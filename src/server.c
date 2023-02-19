@@ -80,17 +80,25 @@ int main(int argc, char *argv[]) {
             }
             if (ep_events[e].data.fd == 0) {
                 if (fgets(buffer, sizeof(buffer), stdin)) {
-                    if (strstr(buffer, COMMAND_SEND) != NULL) {
+                    if (strstr(buffer, COMMAND_USER) != NULL) {
                         for (int i = 0; i < opts->client_count; i++) {
                             for (int u = 0; u < user_list->currentElementCount; u++) {
-                                sprintf(buffer, "%s %s\n", getLLElement(user_list, u)->salt_setting, getLLElement(user_list, u)->original);
+                                sprintf(buffer, "user %s %s %s\n", getLLElement(user_list, u)->id,
+                                        getLLElement(user_list, u)->salt_setting,
+                                        getLLElement(user_list, u)->original);
                                 write(opts->client_socket[i], buffer, sizeof(buffer));
                                 memset(buffer, 0, sizeof(char) * 256);
                             }
-                            sprintf(buffer, "send %d/%d/%d\n", opts->client_socket[i], user_list->num_thread,
-                                    opts->client_count);
+                            printf("[user id][salt][salt setting] sent to client_socket[%d] successfully\n",
+                                   opts->client_socket[i]);
+                        }
+                    }
+                    if (strstr(buffer, COMMAND_SEND) != NULL) {
+                        for (int i = 0; i < opts->client_count; i++) {
+                            sprintf(buffer, "send %d/%d/%d/%d\n", opts->client_socket[i], user_list->num_thread,
+                                    opts->client_count, user_list->currentElementCount);
                             write(opts->client_socket[i], buffer, sizeof(buffer));
-                            printf("[Socket id][thread #][client count] sent to client_socket[%d] successfully\n",
+                            printf("[Socket id][thread][client count][user count] sent to client_socket[%d] successfully\n",
                                    opts->client_socket[i]);
                             memset(buffer, 0, sizeof(char) * 256);
                         }
@@ -102,9 +110,8 @@ int main(int argc, char *argv[]) {
                         memset(buffer, 0, sizeof(char) * 256);
                     }
                     if (strstr(buffer, COMMAND_EXIT) != NULL) {
-                        for (int i = 0; i < opts->client_count; i++) {
+                        for (int i = 0; i < opts->client_count; i++)
                             remove_client(opts, opts->client_socket[i]);
-                        }
                         close(opts->server_socket);
                         free(ep_events);
                         close(epfd);
