@@ -69,9 +69,7 @@ void parse_arguments_server(int argc, char *argv[], char* file_directory, server
     if (optind < argc) {
         int i = 0;
         while (argv[optind + i] != NULL) {
-            ListNode user = {
-                    0,
-            };
+            ListNode user = {0,};
             strcpy(user.id, argv[optind + i]);
             addLLElement(user_list, i, user);
             i++;

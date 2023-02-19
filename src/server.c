@@ -9,6 +9,7 @@ int main(int argc, char *argv[]) {
     server *opts = NULL;
     LinkedList * user_list = NULL;
     char file_directory[30] = {0};
+    char file_list[BUF_SIZE] = {0};
     struct sockaddr_in client_address;
     int client_socket, stdin_fd;
     int index;
@@ -19,13 +20,17 @@ int main(int argc, char *argv[]) {
     struct epoll_event event;
     struct epoll_event* ep_events;
 
-
     putenv("OMP_CANCELLATION=true");
     opts = createServerOps();       // TODO: FREE
     user_list = createLinkedList(); // TODO: FREE
     options_init_server(opts, user_list, file_directory);
     parse_arguments_server(argc, argv, file_directory, opts, user_list);
+    read_from_shadow(file_directory, file_list);
+    find_user(file_list, user_list);
+    salt_setting(user_list);
     options_process_server(opts);
+
+
     printf("Server Initialized Successfully\n"
                   "Waiting for connection ...\n\n\n");
 
@@ -77,6 +82,11 @@ int main(int argc, char *argv[]) {
                 if (fgets(buffer, sizeof(buffer), stdin)) {
                     if (strstr(buffer, COMMAND_SEND) != NULL) {
                         for (int i = 0; i < opts->client_count; i++) {
+                            for (int u = 0; u < user_list->currentElementCount; u++) {
+                                sprintf(buffer, "%s %s\n", getLLElement(user_list, u)->salt_setting, getLLElement(user_list, u)->original);
+                                write(opts->client_socket[i], buffer, sizeof(buffer));
+                                memset(buffer, 0, sizeof(char) * 256);
+                            }
                             sprintf(buffer, "send %d/%d/%d\n", opts->client_socket[i], user_list->num_thread,
                                     opts->client_count);
                             write(opts->client_socket[i], buffer, sizeof(buffer));
@@ -116,7 +126,7 @@ int main(int argc, char *argv[]) {
             else {
                 // RECEIVE DATA FROM CLIENT
                 received_data = read(ep_events[e].data.fd, buffer, 256);
-                if (ep_events[e].data.fd == 3) {
+                if (ep_events[e].data.fd == opts->server_socket) {
                     continue;
                 }
                 else {
