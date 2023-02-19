@@ -20,6 +20,7 @@ int add_new_client(server* opts, int client_socket, struct sockaddr_in *new_clie
 void remove_client(server* opts, int client_socket);
 int get_max_socket_number(server* opts);
 void cleanup(const server* opts);
+void set_nonblocking_mode(int fd);
 
 #endif //COMP8005_PROJECT_SERVER_HELPER_H
 

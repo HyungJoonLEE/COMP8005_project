@@ -2,7 +2,7 @@
 #define COMP8005_ASSIGNMENT1_COMMON_H
 
 #include <assert.h>
-// #include <crypt.h>
+#include <crypt.h>
 #include <omp.h>
 #include <pthread.h>
 #include <semaphore.h>
@@ -30,6 +30,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/epoll.h>
 #include "linkedList.h"
 
 #define BUF_SIZE 4096
@@ -42,6 +43,8 @@
 #define COMMAND_START "start"
 #define COMMAND_SEND "send"
 #define COMMAND_EXIT "exit"
+#define EPOLL_SIZE 10
+
 
 static const char *passwd_arr = "abcdefghijklmnopqrstuvwxyz"
                                 "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
