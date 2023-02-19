@@ -51,13 +51,11 @@ static const char *passwd_arr = "abcdefghijklmnopqrstuvwxyz"
                                 "0123456789~!@#+$%^&*_`-=.,"
                                 "(){|}:;<>?[\\]^ \"\'";
 
-//void parse_command(int argc, char *argv[], char *file_directory,
-//                   LinkedList *user_list);
-//int read_from_shadow(char *file_directory, char *file_list);
-//void find_user(char *file_list, LinkedList *user_list);
-//void save_user(char *user_info, LinkedList *user_list, int i);
-//void save_userinfo(char *user_info, LinkedList *user_list, int i);
-//void compare_password_with_salt(LinkedList *user_list);
+int read_from_shadow(char *file_directory, char *file_list);
+void find_user(char *file_list, LinkedList *user_list);
+void save_user(char *user_info, LinkedList *user_list, int i);
+void save_userinfo(char *user_info, LinkedList *user_list, int i);
+void salt_setting(LinkedList *user_list);
 void free_heap_memory(LinkedList *user_list);
 //void password_generator(int *ptr1, int *ptr2, int temp_pwlen,
 //                        LinkedList *user_list, int user_index);
