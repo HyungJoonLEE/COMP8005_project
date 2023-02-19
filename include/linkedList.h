@@ -21,6 +21,8 @@ typedef struct LinkedListType {
   int currentElementCount;
   int num_thread;
   ListNode headerNode;
+  int socket_id;
+  int client_count;
 } LinkedList;
 
 LinkedList *createLinkedList(void);

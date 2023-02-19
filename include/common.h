@@ -43,6 +43,7 @@
 #define COMMAND_START "start"
 #define COMMAND_SEND "send"
 #define COMMAND_EXIT "exit"
+#define COMMAND_USER "user"
 #define EPOLL_SIZE 10
 
 
@@ -57,7 +58,6 @@ void save_user(char *user_info, LinkedList *user_list, int i);
 void save_userinfo(char *user_info, LinkedList *user_list, int i);
 void salt_setting(LinkedList *user_list);
 void free_heap_memory(LinkedList *user_list);
-//void password_generator(int *ptr1, int *ptr2, int temp_pwlen,
-//                        LinkedList *user_list, int user_index);
+void password_generator(int *ptr1, int *ptr2, int temp_pwlen, LinkedList *user_list, int user_index);
 
 #endif // COMP8005_ASSIGNMENT1_COMMON_H
