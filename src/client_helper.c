@@ -63,7 +63,6 @@ void parse_arguments_client(int argc, char *argv[], struct options *opts) {
 
 int options_process_client(struct options *opts) {
     ssize_t server_connection_test_fd;
-    int result;
     char message[50] = {0};
 
     if (opts->server_ip) {
@@ -83,9 +82,9 @@ int options_process_client(struct options *opts) {
             fatal_errno(__FILE__, __func__, __LINE__, errno, 2);
         }
 
-        result = connect(opts->server_socket, (struct sockaddr *) &server_addr,
+        opts->client_socket = connect(opts->server_socket, (struct sockaddr *) &server_addr,
                          sizeof(struct sockaddr_in));
-        if (result < 0) fatal_errno(__FILE__, __func__, __LINE__, errno, 2);
+        if (opts->client_socket < 0) fatal_errno(__FILE__, __func__, __LINE__, errno, 2);
         else {
             server_connection_test_fd = read(opts->server_socket, message, sizeof(message));
             if (server_connection_test_fd < 0) {
@@ -106,11 +105,21 @@ void cleanup(const struct options *opts) {
 
 void* listen_server(void* arg) {
     char found_response[40] = {0};
+    client* th_opts = (client*)arg;
     while(1) {
-        read((*(client*) arg).server_socket, found_response, sizeof(found_response));
+        if (read(th_opts->server_socket, found_response, sizeof(found_response)) > 0)
+            printf("%s\n", found_response);
+        memset(found_response, 0, 40);
         if (strcmp(found_response, COMMAND_FOUND) == 0) {
+            printf("%s\n", found_response);
             (*(client*) arg).found = true;
             break;
         }
     }
+}
+
+
+void set_nonblocking_mode(int fd) {
+    int flag = fcntl(fd, F_GETFL, 0);
+    fcntl(fd, F_SETFL, flag | O_NONBLOCK);
 }

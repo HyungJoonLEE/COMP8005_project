@@ -114,7 +114,7 @@ int main(int argc, char *argv[]) {
                     }if (strstr(buffer, COMMAND_DISPLAY)) {
                         displayLinkedList(user_list);
                     }
-                    if (strstr(buffer, COMMAND_EXIT) != NULL) {
+                    if (strstr(buffer, COMMAND_EXIT)) {
                         for (int i = 0; i < opts->client_count; i++)
                             remove_client(opts, opts->client_socket[i]);
                         close(opts->server_socket);
@@ -125,7 +125,8 @@ int main(int argc, char *argv[]) {
                         free_heap_memory(user_list);
                         deleteLinkedList(user_list);
                         return EXIT_SUCCESS;
-                    } else {
+                    }
+                    else {
                         if (strlen(buffer) != 0) {
                             buffer[strlen(buffer)] = 0;
                             for (int i = 0; i < opts->client_count; i++) {
@@ -144,24 +145,22 @@ int main(int argc, char *argv[]) {
                 else {
                     if (strlen(buffer) != 0)
                         if (strstr(buffer, COMMAND_FOUND)) {
-                            user_no = 0;
-                            clock_gettime(CLOCK_MONOTONIC, &finish);
-                            time = (finish.tv_sec - start.tv_sec);
-                            time += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
-
-                            getLLElement(user_list, user_no)->time = time;
-                            char *token = strtok(buffer, " ");
-                            // loop through the string to extract all other tokens
-                            // "found: %d %s"
-                            token = strtok(NULL, " ");
-                            user_no = atoi(token);
-                            token = strtok(NULL, " ");
-                            strcpy(getLLElement(user_list, user_no)->password, token);
-                            memset(buffer, 0, sizeof(char) * 256);
-
-                            for (int i = 0; i < opts->client_count; i++)
-                                write(opts->client_socket[i], COMMAND_FOUND, strlen(COMMAND_FOUND));
-                            user_no++;
+                            opts->dup_count++;
+                            if (opts->dup_count > 1) continue;
+                            else {
+                                user_no = 0;
+                                clock_gettime(CLOCK_MONOTONIC, &finish);
+                                time = (finish.tv_sec - start.tv_sec);
+                                time += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
+                                opts->found = true;
+                                getLLElement(user_list, user_no)->time = time;
+                                char *token = strtok(buffer, " ");
+                                token = strtok(NULL, " ");
+                                user_no = atoi(token);
+                                token = strtok(NULL, " ");
+                                strcpy(getLLElement(user_list, user_no)->password, token);
+                                memset(buffer, 0, sizeof(char) * 256);
+                            }
                         }
                         else
                             printf("[ client %d ]: %s", ep_events[e].data.fd, buffer);
@@ -169,12 +168,13 @@ int main(int argc, char *argv[]) {
                         break;
                     }
                     // when client type "exit"
-                    if (strstr(buffer, COMMAND_EXIT) != NULL) {
+                    if (strstr(buffer, COMMAND_EXIT)) {
                         remove_client(opts, ep_events[e].data.fd);
                         continue;
                     }
                     memset(buffer, 0, sizeof(char) * 256);
                 }
+                opts->found = 0;
             }
         }
     }
