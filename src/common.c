@@ -1,8 +1,5 @@
 #include "common.h"
 #include "error.h"
-#include "server.h"
-#include "linkedList.h"
-#include <assert.h>
 
 
 int read_from_shadow(char *file_directory, char *file_list) {
@@ -115,10 +112,11 @@ void salt_setting(LinkedList *user_list) {
 }
 
 
-void password_generator(int *ptr1, int *ptr2, int temp_pwlen, LinkedList *user_list, int user_index) {
+void password_generator(int *ptr1, int *ptr2, int temp_pwlen, LinkedList *user_list, int user_index, void* opts) {
     char password[temp_pwlen];
     int temp[temp_pwlen + 1];
     int i, j;
+    client *cl_opts = (client*)opts;
 
     memset(temp, 0, temp_pwlen);
     memset(password, 0, temp_pwlen);
@@ -128,6 +126,7 @@ void password_generator(int *ptr1, int *ptr2, int temp_pwlen, LinkedList *user_l
 
     i = 0;
     while (i < temp_pwlen) {
+        if (cl_opts->found > 0) break;
         for (i = 0; i < temp_pwlen; i++) {
             password[i] = passwd_arr[temp[i]];
         }

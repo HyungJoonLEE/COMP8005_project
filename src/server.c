@@ -78,7 +78,6 @@ int main(int argc, char *argv[]) {
                 event.events = EPOLLIN;
                 event.data.fd = client_socket;
                 epoll_ctl(epfd, EPOLL_CTL_ADD, client_socket, &event);
-
             }
             if (ep_events[e].data.fd == 0) {
                 if (fgets(buffer, sizeof(buffer), stdin)) {
@@ -152,13 +151,18 @@ int main(int argc, char *argv[]) {
                                 clock_gettime(CLOCK_MONOTONIC, &finish);
                                 time = (finish.tv_sec - start.tv_sec);
                                 time += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
-                                opts->found = true;
+                                opts->found = 1;
                                 getLLElement(user_list, user_no)->time = time;
                                 char *token = strtok(buffer, " ");
                                 token = strtok(NULL, " ");
                                 user_no = atoi(token);
                                 token = strtok(NULL, " ");
                                 strcpy(getLLElement(user_list, user_no)->password, token);
+                                memset(buffer, 0, sizeof(char) * 256);
+                                printf("[FOUND] %s : %s\n", getLLElement(user_list, user_no)->id, getLLElement(user_list, user_no)->password);
+                                for (int i = 0; i < user_list->currentElementCount; i++) {
+                                    write(opts->client_socket[i], COMMAND_FOUND, sizeof(buffer));
+                                }
                                 memset(buffer, 0, sizeof(char) * 256);
                             }
                         }

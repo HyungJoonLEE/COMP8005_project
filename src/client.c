@@ -98,7 +98,7 @@ int main(int argc, char *argv[]) {
                         continue;
                     }
                     if (strstr(s_buffer, COMMAND_START)) {
-                        //                    pthread_create(&th, NULL, &listen_server, &opts);
+                        pthread_create(&th, NULL, &listen_server, opts);
 #pragma omp parallel num_threads(user_list->num_thread)
                         {
                             for (int i = 0; i < PASS_LEN + 1; ++i) {
@@ -111,7 +111,7 @@ int main(int argc, char *argv[]) {
                                      k <
                                      (PASS_ARR_LEN / user_list->client_count + 1) * (user_list->socket_id - 4); k++) {
                                     if (opts->found == 1) {
-#pragma omp cancel for
+                                        #pragma omp cancel for
                                         continue;
                                     }
                                     if (strlen(getLLElement(user_list, index)->password) > 0) {
@@ -119,20 +119,22 @@ int main(int argc, char *argv[]) {
                                         sprintf(buffer, "found: %d %s", index,
                                                 getLLElement(user_list, index)->password);
                                         write(opts->server_socket, buffer, sizeof(buffer));
-                                        opts->found++;
-#pragma omp cancel for
+                                        opts->found = 1;
+                                        #pragma omp cancel for
                                         continue;
                                     } else {
                                         ptr1[0] = k;
                                         ptr2[0] = k + 1;
-                                        password_generator(ptr1, ptr2, i, user_list, index);
+                                        password_generator(ptr1, ptr2, i, user_list, index, opts);
                                     }
-#pragma omp cancellation point for
+                                    #pragma omp cancellation point for
                                 }
-                                opts->found = 0;
                             }
                         }
-                    } else {
+                        opts->found = 0;
+                        pthread_join(th, NULL);
+                    }
+                    else {
                         if (strlen(s_buffer) != 0)
                             if (!strstr(s_buffer, COMMAND_FOUND))
                                 printf("[ server ]: %s", s_buffer);

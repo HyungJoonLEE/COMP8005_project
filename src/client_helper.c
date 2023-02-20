@@ -107,13 +107,12 @@ void* listen_server(void* arg) {
     char found_response[40] = {0};
     client* th_opts = (client*)arg;
     while(1) {
-        if (read(th_opts->server_socket, found_response, sizeof(found_response)) > 0)
-            printf("%s\n", found_response);
-        memset(found_response, 0, 40);
-        if (strcmp(found_response, COMMAND_FOUND) == 0) {
-            printf("%s\n", found_response);
-            (*(client*) arg).found = true;
-            break;
+        if (read(th_opts->server_socket, found_response, sizeof(found_response)) > 0) {
+            if (strstr(found_response, COMMAND_FOUND)) {
+                printf("%s\n", found_response);
+                th_opts->found = 1;
+                break;
+            }
         }
     }
 }
