@@ -7,6 +7,7 @@ typedef struct options {
   char *server_ip;
   in_port_t server_port;
   int server_socket;
+  bool found;
 }client;
 
 

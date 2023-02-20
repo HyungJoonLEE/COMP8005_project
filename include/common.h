@@ -31,6 +31,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/epoll.h>
+#include <pthread.h>
 #include "linkedList.h"
 
 #define BUF_SIZE 4096
@@ -44,6 +45,8 @@
 #define COMMAND_SEND "send"
 #define COMMAND_EXIT "exit"
 #define COMMAND_USER "user"
+#define COMMAND_FOUND "found"
+#define COMMAND_DISPLAY "display"
 #define EPOLL_SIZE 10
 
 
