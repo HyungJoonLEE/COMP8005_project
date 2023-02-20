@@ -158,7 +158,7 @@ int main(int argc, char *argv[]) {
             }
         }
     }
-
+    free(ep_events);
     cleanup(opts);
     free(opts);
     return EXIT_SUCCESS;
