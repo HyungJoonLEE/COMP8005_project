@@ -102,3 +102,15 @@ void cleanup(const struct options *opts) {
         close(opts->server_socket);
     }
 }
+
+
+void* listen_server(void* arg) {
+    char found_response[40] = {0};
+    while(1) {
+        read((*(client*) arg).server_socket, found_response, sizeof(found_response));
+        if (strcmp(found_response, COMMAND_FOUND) == 0) {
+            (*(client*) arg).found = true;
+            break;
+        }
+    }
+}

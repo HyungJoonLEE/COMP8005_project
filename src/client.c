@@ -7,7 +7,9 @@ int main(int argc, char *argv[]) {
     char buffer[256] = {0};
     char s_buffer[256] = {0};
     int u = 0;
+    int index = 0;
     int k;
+    pthread_t th;
     fd_set read_fds;
     LinkedList * user_list = NULL;
 
@@ -19,6 +21,8 @@ int main(int argc, char *argv[]) {
     if (opts->server_socket == -1) {
         printf("Connect() fail");
     }
+
+    pthread_create(&th, NULL, &listen_server, &opts);
 
     while (1) {
         FD_ZERO(&read_fds);
@@ -39,7 +43,7 @@ int main(int argc, char *argv[]) {
 
         if (FD_ISSET(fileno(stdin), &read_fds)) {
             if (fgets(buffer, sizeof(buffer), stdin)) {
-                if (strstr(buffer, COMMAND_EXIT) != NULL) {
+                if (strstr(buffer, COMMAND_EXIT)) {
                     write(opts->server_socket, buffer, sizeof(buffer));
                     printf("Exit from the server");
                     free_heap_memory(user_list);
@@ -86,19 +90,18 @@ int main(int argc, char *argv[]) {
                     printf("id = %s\n", token);
 
                     token = strtok(NULL, " ");
-                    strcpy(user.salt, token);
-                    printf("salt = %s\n", token);
+                    strcpy(user.salt_setting, token);
+                    printf("salt_setting = %s\n", token);
 
                     token = strtok(NULL, "\n");
-                    strcpy(user.salt_setting, token);
-                    printf("salt setting = %s\n", token); //printing each token
+                    strcpy(user.original, token);
+                    printf("original = %s\n", token); //printing each token
 
                     addLLElement(user_list, u, user);
                     u++;
                     continue;
                 }
                 if (strstr(s_buffer, COMMAND_START)) {
-                    u = 0;
 #pragma omp parallel num_threads(user_list->num_thread)
                     {
                         for (int i = 0; i < PASS_LEN + 1; ++i) {
@@ -109,25 +112,29 @@ int main(int argc, char *argv[]) {
                             #pragma omp for schedule(dynamic)
                             for (k = (PASS_ARR_LEN / user_list->client_count + 1) * (user_list->socket_id - 5);
                                     k < (PASS_ARR_LEN / user_list->client_count + 1) * (user_list->socket_id - 4); k++) {
-                                if (strlen(getLLElement(user_list, u)->password) > 0) {
+                                if (strlen(getLLElement(user_list, index)->password) > 0 || opts->found == true) {
+                                    memset(buffer, 0, sizeof(char) * 256);
+                                    sprintf(buffer, "found: %d %s", index, getLLElement(user_list, index)->password);
+                                    write(opts->server_socket, buffer, sizeof(buffer));
                                     #pragma omp cancel for
-                                    u++;
                                     continue;
                                 }
                                 else {
                                     ptr1[0] = k;
                                     ptr2[0] = k + 1;
-                                    password_generator(ptr1, ptr2, i, user_list, u);
+                                    password_generator(ptr1, ptr2, i, user_list, index);
                                 }
-#pragma omp cancellation point for
+                                #pragma omp cancellation point for
                             }
+                            opts->found = FALSE;
                         }
                     }
                     // TODO: password_generator_func call
                 }
                 else {
                     if (strlen(s_buffer) != 0)
-                        printf("[ server ]: %s", s_buffer);
+                        if (!strstr(s_buffer, COMMAND_FOUND))
+                            printf("[ server ]: %s", s_buffer);
                 }
                 memset(s_buffer, 0, 256);
             }

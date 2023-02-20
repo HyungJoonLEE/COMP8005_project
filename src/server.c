@@ -12,13 +12,15 @@ int main(int argc, char *argv[]) {
     char file_list[BUF_SIZE] = {0};
     struct sockaddr_in client_address;
     int client_socket, stdin_fd;
-    int index;
+    int index, user_no;
     char buffer[256] = {0};
     int client_address_size = sizeof(struct sockaddr_in);
     ssize_t received_data;
     int epfd, event_cnt;
     struct epoll_event event;
     struct epoll_event* ep_events;
+    struct timespec start, finish;
+    double time;
 
     putenv("OMP_CANCELLATION=true");
     opts = createServerOps();       // TODO: FREE
@@ -93,7 +95,7 @@ int main(int argc, char *argv[]) {
                                    opts->client_socket[i]);
                         }
                     }
-                    if (strstr(buffer, COMMAND_SEND) != NULL) {
+                    if (strstr(buffer, COMMAND_SEND)) {
                         for (int i = 0; i < opts->client_count; i++) {
                             sprintf(buffer, "send %d/%d/%d/%d\n", opts->client_socket[i], user_list->num_thread,
                                     opts->client_count, user_list->currentElementCount);
@@ -103,11 +105,14 @@ int main(int argc, char *argv[]) {
                             memset(buffer, 0, sizeof(char) * 256);
                         }
                     }
-                    if (strstr(buffer, COMMAND_START) != NULL) {
+                    if (strstr(buffer, COMMAND_START)) {
+                        clock_gettime(CLOCK_MONOTONIC, &start);
                         for (int i = 0; i < opts->client_count; i++) {
                             write(opts->client_socket[i], buffer, sizeof(buffer));
                         }
                         memset(buffer, 0, sizeof(char) * 256);
+                    }if (strstr(buffer, COMMAND_DISPLAY)) {
+                        displayLinkedList(user_list);
                     }
                     if (strstr(buffer, COMMAND_EXIT) != NULL) {
                         for (int i = 0; i < opts->client_count; i++)
@@ -138,7 +143,28 @@ int main(int argc, char *argv[]) {
                 }
                 else {
                     if (strlen(buffer) != 0)
-                        printf("[ client %d ]: %s", ep_events[e].data.fd, buffer);
+                        if (strstr(buffer, COMMAND_FOUND)) {
+                            user_no = 0;
+                            clock_gettime(CLOCK_MONOTONIC, &finish);
+                            time = (finish.tv_sec - start.tv_sec);
+                            time += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
+
+                            getLLElement(user_list, user_no)->time = time;
+                            char *token = strtok(buffer, " ");
+                            // loop through the string to extract all other tokens
+                            // "found: %d %s"
+                            token = strtok(NULL, " ");
+                            user_no = atoi(token);
+                            token = strtok(NULL, " ");
+                            strcpy(getLLElement(user_list, user_no)->password, token);
+                            memset(buffer, 0, sizeof(char) * 256);
+
+                            for (int i = 0; i < opts->client_count; i++)
+                                write(opts->client_socket[i], COMMAND_FOUND, strlen(COMMAND_FOUND));
+                            user_no++;
+                        }
+                        else
+                            printf("[ client %d ]: %s", ep_events[e].data.fd, buffer);
                     if (received_data < 0) {
                         break;
                     }
