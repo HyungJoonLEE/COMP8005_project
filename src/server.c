@@ -160,8 +160,8 @@ int main(int argc, char *argv[]) {
                                 strcpy(getLLElement(user_list, user_no)->password, token);
                                 memset(buffer, 0, sizeof(char) * 256);
                                 printf("[FOUND] %s : %s\n", getLLElement(user_list, user_no)->id, getLLElement(user_list, user_no)->password);
-                                for (int i = 0; i < user_list->currentElementCount; i++) {
-                                    write(opts->client_socket[i], COMMAND_FOUND, sizeof(buffer));
+                                for (int i = 0; i < opts->client_count; i++) {
+                                    write(opts->client_socket[i], COMMAND_FOUND, strlen(COMMAND_FOUND));
                                 }
                                 memset(buffer, 0, sizeof(char) * 256);
                             }

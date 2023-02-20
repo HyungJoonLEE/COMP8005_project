@@ -98,6 +98,8 @@ int main(int argc, char *argv[]) {
                         continue;
                     }
                     if (strstr(s_buffer, COMMAND_START)) {
+                        opts->found = 0;
+                        memset(getLLElement(user_list, index)->password, 0, 10);
                         pthread_create(&th, NULL, &listen_server, opts);
 #pragma omp parallel num_threads(user_list->num_thread)
                         {
@@ -131,8 +133,7 @@ int main(int argc, char *argv[]) {
                                 }
                             }
                         }
-                        opts->found = 0;
-                        pthread_join(th, NULL);
+//                        pthread_join(th, NULL);
                     }
                     else {
                         if (strlen(s_buffer) != 0)
