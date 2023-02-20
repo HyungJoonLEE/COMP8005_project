@@ -6,11 +6,12 @@
 #define BACKLOG 25
 
 typedef struct option{
-  char *client_ip;
   in_port_t server_port;
   int server_socket;
   int client_socket[25];
   int client_count;
+  bool found;
+  int dup_count;
 }server;
 
 

@@ -10,4 +10,5 @@ void parse_arguments_client(int argc, char *argv[], struct options *opts);
 int options_process_client(struct options *opts);
 void cleanup(const struct options *opts);
 void* listen_server(void* arg);
+void set_nonblocking_mode(int fd);
 #endif //COMP8005_PROJECT_CLIENT_HELPER_H
