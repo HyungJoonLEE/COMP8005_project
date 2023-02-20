@@ -10,7 +10,7 @@ typedef struct option{
   int server_socket;
   int client_socket[25];
   int client_count;
-  bool found;
+  int found;
   int dup_count;
 }server;
 
