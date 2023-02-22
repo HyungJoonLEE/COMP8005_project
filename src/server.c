@@ -161,9 +161,12 @@ int main(int argc, char *argv[]) {
                                 memset(buffer, 0, sizeof(char) * 256);
                                 printf("[FOUND] %s : %s\n", getLLElement(user_list, user_no)->id, getLLElement(user_list, user_no)->password);
                                 for (int i = 0; i < opts->client_count; i++) {
-                                    write(opts->client_socket[i], COMMAND_FOUND, strlen(COMMAND_FOUND));
+                                    strcpy(buffer, COMMAND_FOUND);
+                                    write(opts->client_socket[i], buffer, sizeof(buffer));
                                 }
                                 memset(buffer, 0, sizeof(char) * 256);
+                                opts->found = 0;
+                                opts->dup_count = 0;
                             }
                         }
                         else

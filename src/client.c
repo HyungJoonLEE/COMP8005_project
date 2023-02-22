@@ -10,7 +10,6 @@ int main(int argc, char *argv[]) {
     int index = 0;
     int k;
     pthread_t th;
-    fd_set read_fds;
     LinkedList * user_list = NULL;
     int epfd, event_cnt, stdin_fd;
     struct epoll_event event;
@@ -47,6 +46,7 @@ int main(int argc, char *argv[]) {
     set_nonblocking_mode(stdin_fd);
 
     while (1) {
+        if (opts->exit_flag == 1) break;
         event_cnt = epoll_wait(epfd, ep_events, EPOLL_SIZE, -1);
         if (event_cnt == -1) {
             perror("epoll_wait() error: ");
@@ -72,7 +72,7 @@ int main(int argc, char *argv[]) {
                         printf("number of client = %s\n", token);
                         user_list->client_count = atoi(token);
 
-                        token = strtok(NULL, "/");
+                        token = strtok(NULL, "\n");
                         printf("number of user = %s\n", token);
                         user_list->currentElementCount = atoi(token);
                         continue;
@@ -113,7 +113,7 @@ int main(int argc, char *argv[]) {
                                      k <
                                      (PASS_ARR_LEN / user_list->client_count + 1) * (user_list->socket_id - 4); k++) {
                                     if (opts->found == 1) {
-                                        #pragma omp cancel for
+#pragma omp cancel for
                                         continue;
                                     }
                                     if (strlen(getLLElement(user_list, index)->password) > 0) {
@@ -122,26 +122,26 @@ int main(int argc, char *argv[]) {
                                                 getLLElement(user_list, index)->password);
                                         write(opts->server_socket, buffer, sizeof(buffer));
                                         opts->found = 1;
-                                        #pragma omp cancel for
+#pragma omp cancel for
                                         continue;
                                     } else {
                                         ptr1[0] = k;
                                         ptr2[0] = k + 1;
                                         password_generator(ptr1, ptr2, i, user_list, index, opts);
                                     }
-                                    #pragma omp cancellation point for
+#pragma omp cancellation point for
                                 }
                             }
                         }
-//                        pthread_join(th, NULL);
                     }
                     else {
+                        pthread_join(th, NULL);
                         if (strlen(s_buffer) != 0)
                             if (!strstr(s_buffer, COMMAND_FOUND))
                                 printf("[ server ]: %s", s_buffer);
                     }
-                    memset(s_buffer, 0, 256);
                 }
+                memset(s_buffer, 0, 256);
             }
 
             if (ep_events[e].data.fd == 0) {
@@ -149,9 +149,10 @@ int main(int argc, char *argv[]) {
                     if (strstr(buffer, COMMAND_EXIT)) {
                         write(opts->server_socket, buffer, sizeof(buffer));
                         printf("Exit from the server");
-                        free_heap_memory(user_list);
+//                        free_heap_memory(user_list);
                         deleteLinkedList(user_list);
                         close(opts->server_socket);
+                        opts->exit_flag = 1;
                         break;
                     } else {
                         write(opts->server_socket, buffer, sizeof(buffer));

@@ -109,9 +109,10 @@ void* listen_server(void* arg) {
     while(1) {
         if (read(th_opts->server_socket, found_response, sizeof(found_response)) > 0) {
             if (strstr(found_response, COMMAND_FOUND)) {
-                printf("%s\n", found_response);
+//                printf("%s\n", found_response);
                 th_opts->found = 1;
-                break;
+                pthread_cancel(pthread_self());
+                return NULL;
             }
         }
     }
