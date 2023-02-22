@@ -9,6 +9,7 @@ typedef struct options {
   int server_socket;
   int client_socket;
   int found;
+  int exit_flag;
 }client;
 
 
