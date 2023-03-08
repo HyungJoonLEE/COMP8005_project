@@ -12,7 +12,8 @@ int main(int argc, char *argv[]) {
     char file_list[BUF_SIZE] = {0};
     struct sockaddr_in client_address;
     int client_socket, stdin_fd;
-    int index, user_no;
+    int index;
+    int user_no = 0;
     char buffer[256] = {0};
     int client_address_size = sizeof(struct sockaddr_in);
     ssize_t received_data;
@@ -63,6 +64,7 @@ int main(int argc, char *argv[]) {
         puts("2. Send User Info");
         puts("3. Start Cracking");
         puts("4. Show Result");
+        puts("5. EXIT Program");
         puts("==============================");
         event_cnt = epoll_wait(epfd, ep_events, EPOLL_SIZE, -1);
         if (event_cnt == -1) {
@@ -125,15 +127,12 @@ int main(int argc, char *argv[]) {
                     if (strstr(buffer, OPT_FOUR)) {
                         displayLinkedList(user_list);
                     }
-                    if (strstr(buffer, COMMAND_EXIT)) {
-                        for (int i = 0; i < opts->client_count; i++)
-                            remove_client(opts, opts->client_socket[i]);
+                    if (strstr(buffer, OPT_FIVE)) {
                         close(opts->server_socket);
                         free(ep_events);
                         close(epfd);
                         cleanup(opts);
                         free(opts);
-                        free_heap_memory(user_list);
                         deleteLinkedList(user_list);
                         return EXIT_SUCCESS;
                     }
@@ -156,11 +155,9 @@ int main(int argc, char *argv[]) {
                 else {
                     if (strlen(buffer) != 0)
                         if (strstr(buffer, COMMAND_FOUND)) {
-                            printf("data = %s\n", buffer);
                             opts->dup_count++;
                             if (opts->dup_count > 1) continue;
                             else {
-                                user_no = 0;
                                 clock_gettime(CLOCK_MONOTONIC, &finish);
                                 time = (finish.tv_sec - start.tv_sec);
                                 time += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
@@ -182,6 +179,16 @@ int main(int argc, char *argv[]) {
                                 memset(buffer, 0, sizeof(char) * 256);
                                 opts->found = 0;
                                 opts->dup_count = 0;
+                                user_no++;
+                            }
+                            printf("Starting crack password : %s in 5 seconds\n", getLLElement(user_list, user_no)->id);
+                            for (int s = 5; s > 0; s--) {
+                                sleep(1);
+                                printf("%d ... \n", s);
+                            }
+                            for (int i = 0; i < opts->client_count; i++) {
+                                strcpy(buffer, COMMAND_START);
+                                write(opts->client_socket[i], buffer, sizeof(buffer));
                             }
                         }
                         else
