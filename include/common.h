@@ -46,6 +46,7 @@
 #define OPT_TWO "2"
 #define OPT_THREE "3"
 #define OPT_FOUR "4"
+#define OPT_FIVE "5"
 #define COMMAND_SEND "send"
 #define COMMAND_USER "user"
 #define COMMAND_START "start"
