@@ -58,8 +58,11 @@ int main(int argc, char *argv[]) {
                 received_data = read(opts->server_socket, s_buffer, sizeof(buffer));
                 if (received_data > 0) {
                     if(!(strstr(s_buffer, COMMAND_SEND) ||
-                       strstr(s_buffer, COMMAND_USER) ||
-                       strstr(s_buffer, COMMAND_START))) {
+                            strstr(s_buffer, COMMAND_USER) ||
+                            strstr(s_buffer, COMMAND_START) ||
+                            strstr(s_buffer, COMMAND_DISPLAY) ||
+                            strstr(s_buffer, COMMAND_EXIT) ||
+                            strstr(s_buffer, OPT_FOUR))) {
                         printf("[ SERVER ]: %s", s_buffer);
                         continue;
                     }
@@ -143,12 +146,11 @@ int main(int argc, char *argv[]) {
                         }
                         puts("[FOUND] Waiting For The Next Instruction");
                         index++;
-                        if (index > user_list->currentElementCount) break;
                     }
                     else {
                         pthread_join(th, NULL);
                         if (strlen(s_buffer) != 0)
-                            if (!strstr(s_buffer, COMMAND_FOUND)) {
+                            if (!(strstr(s_buffer, COMMAND_FOUND) || strstr(s_buffer, OPT_FOUR))) {
                                 printf("[ server ]: %s", s_buffer);
                             }
                         continue;

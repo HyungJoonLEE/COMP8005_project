@@ -42,10 +42,10 @@ void parse_arguments_server(int argc, char *argv[], char* file_directory, server
                 break;
             }
             case 't': {
-                if (atoi(optarg) > omp_get_max_threads()) {
-                    printf("Thread number is higher than your computer's max thread");
-                    exit(1);
-                }
+//                if (atoi(optarg) > omp_get_max_threads()) {
+//                    printf("Thread number is higher than your computer's max thread");
+//                    exit(1);
+//                }
                 user_list->num_thread = atoi(optarg);
                 break;
             }

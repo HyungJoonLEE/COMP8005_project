@@ -118,6 +118,11 @@ int main(int argc, char *argv[]) {
                         }
                     }
                     if (strstr(buffer, OPT_THREE)) {
+                        if (strlen(getLLElement(user_list, user_no)->password) > 0) {
+                            puts("WE ALREADY CRACKED THE PASSWORD\n"
+                                 "TYPE 4 TO SEE THE CRACKED PASSWORD");
+                            break;
+                        }
                         clock_gettime(CLOCK_MONOTONIC, &start);
                         for (int i = 0; i < opts->client_count; i++) {
                             write(opts->client_socket[i], COMMAND_START, strlen(COMMAND_START));
@@ -181,14 +186,23 @@ int main(int argc, char *argv[]) {
                                 opts->dup_count = 0;
                                 user_no++;
                             }
-                            printf("Starting crack password : %s in 5 seconds\n", getLLElement(user_list, user_no)->id);
-                            for (int s = 5; s > 0; s--) {
-                                sleep(1);
-                                printf("%d ... \n", s);
+                            if (user_no == user_list->currentElementCount) {
+                                puts("Cracked Everything");
+                                user_no = 0;
+                                break;
                             }
-                            for (int i = 0; i < opts->client_count; i++) {
-                                strcpy(buffer, COMMAND_START);
-                                write(opts->client_socket[i], buffer, sizeof(buffer));
+                            else {
+                                printf("Starting crack password : %s in 5 seconds\n",
+                                       getLLElement(user_list, user_no)->id);
+                                for (int s = 5; s > 0; s--) {
+                                    sleep(1);
+                                    printf("%d ... \n", s);
+                                }
+                                for (int i = 0; i < opts->client_count; i++) {
+                                    strcpy(buffer, COMMAND_START);
+                                    write(opts->client_socket[i], buffer, sizeof(buffer));
+                                    clock_gettime(CLOCK_MONOTONIC, &start);
+                                }
                             }
                         }
                         else
