@@ -57,6 +57,13 @@ int main(int argc, char *argv[]) {
     set_nonblocking_mode(stdin_fd);
 
     while (1) {
+        puts("\n\n\n==== SELECT OPTION TO RUN ====");
+        printf("Current Computer Count = %d\n", opts->client_count);
+        puts("1. Send Socket Info");
+        puts("2. Send User Info");
+        puts("3. Start Cracking");
+        puts("4. Show Result");
+        puts("==============================");
         event_cnt = epoll_wait(epfd, ep_events, EPOLL_SIZE, -1);
         if (event_cnt == -1) {
             perror("epoll_wait() error: ");
@@ -79,9 +86,23 @@ int main(int argc, char *argv[]) {
                 event.data.fd = client_socket;
                 epoll_ctl(epfd, EPOLL_CTL_ADD, client_socket, &event);
             }
+
+
+
+
             if (ep_events[e].data.fd == 0) {
                 if (fgets(buffer, sizeof(buffer), stdin)) {
-                    if (strstr(buffer, COMMAND_USER) != NULL) {
+                    if (strstr(buffer, OPT_ONE)) {
+                        for (int i = 0; i < opts->client_count; i++) {
+                            sprintf(buffer, "send %d/%d/%d/%d\n", opts->client_socket[i], user_list->num_thread,
+                                    opts->client_count, user_list->currentElementCount);
+                            write(opts->client_socket[i], buffer, sizeof(buffer));
+                            printf("[Socket id][thread][client count][user count] sent to client_socket[%d] successfully\n",
+                                   opts->client_socket[i]);
+                            memset(buffer, 0, sizeof(char) * 256);
+                        }
+                    }
+                    if (strstr(buffer, OPT_TWO) != NULL) {
                         for (int i = 0; i < opts->client_count; i++) {
                             for (int u = 0; u < user_list->currentElementCount; u++) {
                                 sprintf(buffer, "user %s %s %s\n", getLLElement(user_list, u)->id,
@@ -94,23 +115,14 @@ int main(int argc, char *argv[]) {
                                    opts->client_socket[i]);
                         }
                     }
-                    if (strstr(buffer, COMMAND_SEND)) {
-                        for (int i = 0; i < opts->client_count; i++) {
-                            sprintf(buffer, "send %d/%d/%d/%d\n", opts->client_socket[i], user_list->num_thread,
-                                    opts->client_count, user_list->currentElementCount);
-                            write(opts->client_socket[i], buffer, sizeof(buffer));
-                            printf("[Socket id][thread][client count][user count] sent to client_socket[%d] successfully\n",
-                                   opts->client_socket[i]);
-                            memset(buffer, 0, sizeof(char) * 256);
-                        }
-                    }
-                    if (strstr(buffer, COMMAND_START)) {
+                    if (strstr(buffer, OPT_THREE)) {
                         clock_gettime(CLOCK_MONOTONIC, &start);
                         for (int i = 0; i < opts->client_count; i++) {
-                            write(opts->client_socket[i], buffer, sizeof(buffer));
+                            write(opts->client_socket[i], COMMAND_START, strlen(COMMAND_START));
                         }
                         memset(buffer, 0, sizeof(char) * 256);
-                    }if (strstr(buffer, COMMAND_DISPLAY)) {
+                    }
+                    if (strstr(buffer, OPT_FOUR)) {
                         displayLinkedList(user_list);
                     }
                     if (strstr(buffer, COMMAND_EXIT)) {
@@ -144,6 +156,7 @@ int main(int argc, char *argv[]) {
                 else {
                     if (strlen(buffer) != 0)
                         if (strstr(buffer, COMMAND_FOUND)) {
+                            printf("data = %s\n", buffer);
                             opts->dup_count++;
                             if (opts->dup_count > 1) continue;
                             else {
@@ -158,6 +171,8 @@ int main(int argc, char *argv[]) {
                                 user_no = atoi(token);
                                 token = strtok(NULL, " ");
                                 strcpy(getLLElement(user_list, user_no)->password, token);
+                                token = strtok(NULL, " ");
+                                getLLElement(user_list, user_no)->count = atoi(token);
                                 memset(buffer, 0, sizeof(char) * 256);
                                 printf("[FOUND] %s : %s\n", getLLElement(user_list, user_no)->id, getLLElement(user_list, user_no)->password);
                                 for (int i = 0; i < opts->client_count; i++) {

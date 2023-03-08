@@ -57,6 +57,12 @@ int main(int argc, char *argv[]) {
             if (ep_events[e].data.fd == opts->server_socket) {
                 received_data = read(opts->server_socket, s_buffer, sizeof(buffer));
                 if (received_data > 0) {
+                    if(!(strstr(s_buffer, COMMAND_SEND)) ||
+                       !(strstr(s_buffer, COMMAND_USER)) ||
+                       !(strstr(s_buffer, COMMAND_START))) {
+                        printf("[ SERVER ]: %s", s_buffer);
+                        continue;
+                    }
                     if (strstr(s_buffer, COMMAND_SEND)) {
                         char *token = strtok(s_buffer, " ");
                         // loop through the string to extract all other tokens
@@ -73,7 +79,7 @@ int main(int argc, char *argv[]) {
                         user_list->client_count = atoi(token);
 
                         token = strtok(NULL, "\n");
-                        printf("number of user = %s\n", token);
+                        printf("number of user need to be cracked = %s\n", token);
                         user_list->currentElementCount = atoi(token);
                         continue;
                     }
@@ -99,7 +105,7 @@ int main(int argc, char *argv[]) {
                     }
                     if (strstr(s_buffer, COMMAND_START)) {
                         opts->found = 0;
-                        memset(getLLElement(user_list, index)->password, 0, 10);
+                        memset(getLLElement(user_list, index)->password, 0, 15);
                         pthread_create(&th, NULL, &listen_server, opts);
 #pragma omp parallel num_threads(user_list->num_thread)
                         {
@@ -118,8 +124,9 @@ int main(int argc, char *argv[]) {
                                     }
                                     if (strlen(getLLElement(user_list, index)->password) > 0) {
                                         memset(buffer, 0, sizeof(char) * 256);
-                                        sprintf(buffer, "found: %d %s", index,
-                                                getLLElement(user_list, index)->password);
+                                        sprintf(buffer, "found: %d %s %d", index,
+                                                getLLElement(user_list, index)->password,
+                                                getLLElement(user_list, index)->count);
                                         write(opts->server_socket, buffer, sizeof(buffer));
                                         opts->found = 1;
 #pragma omp cancel for
@@ -133,12 +140,14 @@ int main(int argc, char *argv[]) {
                                 }
                             }
                         }
+                        puts("[FOUND] Waiting For The Next Instruction");
                     }
                     else {
                         pthread_join(th, NULL);
                         if (strlen(s_buffer) != 0)
                             if (!strstr(s_buffer, COMMAND_FOUND))
                                 printf("[ server ]: %s", s_buffer);
+                        continue;
                     }
                 }
                 memset(s_buffer, 0, 256);
