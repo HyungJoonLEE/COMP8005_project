@@ -10,7 +10,7 @@ typedef struct ListNodeType {
   char salt[64];
   char salt_setting[128];
   char hash_value[128];
-  char password[10];
+  char password[15];
   char original[256];
   int count;
   float time;

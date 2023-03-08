@@ -42,10 +42,14 @@
 #define DEFAULT_PORT_SERVER 53000
 #define TRUE 1
 #define FALSE 0
-#define COMMAND_START "start"
+#define OPT_ONE "1"
+#define OPT_TWO "2"
+#define OPT_THREE "3"
+#define OPT_FOUR "4"
 #define COMMAND_SEND "send"
-#define COMMAND_EXIT "exit"
 #define COMMAND_USER "user"
+#define COMMAND_START "start"
+#define COMMAND_EXIT "exit"
 #define COMMAND_FOUND "found"
 #define COMMAND_DISPLAY "display"
 #define EPOLL_SIZE 10
