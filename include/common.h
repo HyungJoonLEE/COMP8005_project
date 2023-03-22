@@ -47,12 +47,14 @@
 #define OPT_THREE "3"
 #define OPT_FOUR "4"
 #define OPT_FIVE "5"
+#define OPT_SIX "6"
 #define COMMAND_SEND "send"
 #define COMMAND_USER "user"
 #define COMMAND_START "start"
 #define COMMAND_EXIT "exit"
 #define COMMAND_FOUND "found"
 #define COMMAND_DISPLAY "display"
+#define COMMAND_FLUSH "flush"
 #define EPOLL_SIZE 10
 
 
