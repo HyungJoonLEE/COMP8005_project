@@ -61,9 +61,10 @@ int main(int argc, char *argv[]) {
                             strstr(s_buffer, COMMAND_USER) ||
                             strstr(s_buffer, COMMAND_START) ||
                             strstr(s_buffer, COMMAND_DISPLAY) ||
+                            strstr(s_buffer, COMMAND_FLUSH) ||
                             strstr(s_buffer, COMMAND_EXIT) ||
                             strstr(s_buffer, OPT_FOUR))) {
-                        printf("[ SERVER ]: %s", s_buffer);
+                        printf("[ SERVER ]: %s\n", s_buffer);
                         continue;
                     }
                     if (strstr(s_buffer, COMMAND_SEND)) {
@@ -104,6 +105,13 @@ int main(int argc, char *argv[]) {
 
                         addLLElement(user_list, u, user);
                         u++;
+                        continue;
+                    }
+                    if (strstr(s_buffer, COMMAND_FLUSH)) {
+                        if (!getLLElement(user_list, 0)) continue;
+                        clearLinkedList(user_list);
+                        puts("Successfully deleted user info");
+                        u = 0;
                         continue;
                     }
                     if (strstr(s_buffer, COMMAND_START)) {

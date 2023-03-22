@@ -64,7 +64,8 @@ int main(int argc, char *argv[]) {
         puts("2. Send User Info");
         puts("3. Start Cracking");
         puts("4. Show Result");
-        puts("5. EXIT Program");
+        puts("5. Flush User Info");
+        puts("6. EXIT Program");
         puts("==============================");
         event_cnt = epoll_wait(epfd, ep_events, EPOLL_SIZE, -1);
         if (event_cnt == -1) {
@@ -103,6 +104,7 @@ int main(int argc, char *argv[]) {
                                    opts->client_socket[i]);
                             memset(buffer, 0, sizeof(char) * 256);
                         }
+                        continue;
                     }
                     if (strstr(buffer, OPT_TWO) != NULL) {
                         for (int i = 0; i < opts->client_count; i++) {
@@ -116,6 +118,7 @@ int main(int argc, char *argv[]) {
                             printf("[user id][salt][salt setting] sent to client_socket[%d] successfully\n",
                                    opts->client_socket[i]);
                         }
+                        continue;
                     }
                     if (strstr(buffer, OPT_THREE)) {
                         if (strlen(getLLElement(user_list, user_no)->password) > 0) {
@@ -131,8 +134,17 @@ int main(int argc, char *argv[]) {
                     }
                     if (strstr(buffer, OPT_FOUR)) {
                         displayLinkedList(user_list);
+                        memset(buffer, 0, sizeof(char) * 256);
+                        continue;
                     }
                     if (strstr(buffer, OPT_FIVE)) {
+                        for (int i = 0; i < opts->client_count; i++) {
+                            write(opts->client_socket[i], COMMAND_FLUSH, strlen(COMMAND_FLUSH));
+                        }
+                        memset(buffer, 0, sizeof(char) * 256);
+                        continue;
+                    }
+                    if (strstr(buffer, OPT_SIX)) {
                         close(opts->server_socket);
                         free(ep_events);
                         close(epfd);
