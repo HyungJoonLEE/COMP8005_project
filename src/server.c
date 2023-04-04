@@ -112,6 +112,7 @@ int main(int argc, char *argv[]) {
                                 sprintf(buffer, "user %s %s %s\n", getLLElement(user_list, u)->id,
                                         getLLElement(user_list, u)->salt_setting,
                                         getLLElement(user_list, u)->original);
+                                puts(buffer);
                                 write(opts->client_socket[i], buffer, sizeof(buffer));
                                 memset(buffer, 0, sizeof(char) * 256);
                             }
@@ -140,6 +141,11 @@ int main(int argc, char *argv[]) {
                     if (strstr(buffer, OPT_FIVE)) {
                         for (int i = 0; i < opts->client_count; i++) {
                             write(opts->client_socket[i], COMMAND_FLUSH, strlen(COMMAND_FLUSH));
+                        }
+                        for (int i = 0; i < user_list->currentElementCount; i++) {
+                            memset(getLLElement(user_list, i)->password, 0, 15);
+                            getLLElement(user_list, i)->count = 0;
+                            getLLElement(user_list, i)->time = 0;
                         }
                         memset(buffer, 0, sizeof(char) * 256);
                         continue;

@@ -110,7 +110,10 @@ int main(int argc, char *argv[]) {
                     if (strstr(s_buffer, COMMAND_FLUSH)) {
                         if (!getLLElement(user_list, 0)) continue;
                         clearLinkedList(user_list);
+                        user_list->currentElementCount = 0;
+                        user_list->num_thread = 0;
                         puts("Successfully deleted user info");
+                        index = 0;
                         u = 0;
                         continue;
                     }
